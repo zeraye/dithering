@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="panda512.png" />
+  <title>Dithering</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <h1>Dithering</h1>
+
+  <div id="container">
+    <div id="settings">
+      <fieldset>
+        <legend>Select a color reduction algorithm:</legend>
+
+        <div>
+          <div>
+            <input type="radio" name="algorithms" id="avg-dith" checked />
+            <label for="avg-dith">average dithering</label>
+          </div>
+
+          <div>
+            <input type="radio" name="algorithms" id="err-diff-dith" />
+            <label for="err-diff-dith">error diffusion dithering</label>
+          </div>
+
+          <div>
+            <input type="radio" name="algorithms" id="ord-dith-rand" />
+            <label for="ord-dith-rand">ordered dithering random</label>
+          </div>
+
+          <div>
+            <input type="radio" name="algorithms" id="ord-dith-rel" />
+            <label for="ord-dith-rel">ordered dithering relative</label>
+          </div>
+
+          <div>
+            <input type="radio" name="algorithms" id="pop-alg" />
+            <label for="pop-alg">popularity algorithm</label>
+          </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Parameters for dithering:</legend>
+
+        <div>
+          <label for="kr">Kr</label>
+          <input type="number" name="kr" id="kr" value="4" />
+        </div>
+
+        <div>
+          <label for="kg">Kg</label>
+          <input type="number" name="kg" id="kg" value="4" />
+        </div>
+
+        <div>
+          <label for="kb">Kb</label>
+          <input type="number" name="kb" id="kb" value="4" />
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Parameter for popularity algorithm:</legend>
+
+        <div>
+          <label for="k">K</label>
+          <input type="number" name="k" id="k" value="50" />
+        </div>
+      </fieldset>
+
+      <button id="refresh">Refresh</button>
+    </div>
+
+    <div id="original-img">
+      <canvas id="original-canvas" width="400" height="400">Oh no! Your browser doesn't support canvas!</canvas>
+    </div>
+
+    <div id="transformed-img">
+      <canvas id="transformed-canvas" width="400" height="400">Oh no! Your browser doesn't support canvas!</canvas>
+    </div>
+  </div>
+
+  <script src="script.js" async defer></script>
+</body>
+
+</html>

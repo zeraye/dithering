@@ -1,0 +1,19 @@
+#settings { grid-area: settings; }
+#original-img { grid-area: original-img; }
+#transformed-img { grid-area: transformed-img; }
+
+
+#container {
+    display: grid;
+    grid-template-areas: 'settings original-img transformed-img';
+    gap: 1em;
+    width: fit-content;
+}
+
+#settings div, input, label {
+    padding: 5px;
+}
+
+#settings fieldset {
+    margin: 10px;
+}
