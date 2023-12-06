@@ -49,17 +49,17 @@
 
         <div>
           <label for="kr">Kr</label>
-          <input type="number" name="kr" id="kr" value="4" />
+          <input type="number" name="kr" id="kr" value="4" min="2" max="256" />
         </div>
 
         <div>
           <label for="kg">Kg</label>
-          <input type="number" name="kg" id="kg" value="4" />
+          <input type="number" name="kg" id="kg" value="4" min="2" max="256" />
         </div>
 
         <div>
           <label for="kb">Kb</label>
-          <input type="number" name="kb" id="kb" value="4" />
+          <input type="number" name="kb" id="kb" value="4" min="2" max="256" />
         </div>
       </fieldset>
 
@@ -68,11 +68,12 @@
 
         <div>
           <label for="k">K</label>
-          <input type="number" name="k" id="k" value="50" />
+          <input type="number" name="k" id="k" value="50" min="2" max="1000" />
         </div>
       </fieldset>
 
       <button id="refresh">Refresh</button>
+      <p>Transformation time: <span id="time">0</span> ms</p>
     </div>
 
     <div id="original-img">
