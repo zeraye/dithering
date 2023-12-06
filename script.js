@@ -46,12 +46,7 @@ const errorDiffusionDithering = (data) => {
   const redIntervals = ditheringIntervals("red");
   const greenIntervals = ditheringIntervals("green");
   const blueIntervals = ditheringIntervals("blue");
-  // Floyd and Steinberg Filter
-  const filter = [
-    [0, 0, 0],
-    [0, 0, 7 / 16],
-    [3 / 16, 5 / 16, 1 / 16],
-  ];
+  const width = inCtx.canvas.width;
 
   for (let i = 0; i < data.length; i += 4) {
     const red = findInterval(data[i], redIntervals);
@@ -60,15 +55,16 @@ const errorDiffusionDithering = (data) => {
     const rerr = data[i] - red;
     const gerr = data[i + 1] - green;
     const berr = data[i + 2] - blue;
-    data[i] = red;
+    const err = [rerr, gerr, berr];
+    data[i + 0] = red;
     data[i + 1] = green;
     data[i + 2] = blue;
-    for (let k = 0; k < 3; ++k) {
-      for (let l = 0; l < 3; ++l) {
-        data[i + 4 * k + inCtx.canvas.width * 4 * l] += rerr * filter[k][l];
-        data[i + 1 + 4 * k + inCtx.canvas.width * 4 * l] += gerr * filter[k][l];
-        data[i + 2 + 4 * k + inCtx.canvas.width * 4 * l] += berr * filter[k][l];
-      }
+    // Floyd and Steinberg Filter
+    for (let j = 0; j < 3; ++j) {
+      data[i + j + 4] += (err[j] * 7) / 16;
+      data[i + j - 4 + 4 * width] += (err[j] * 3) / 16;
+      data[i + j + 4 * width] += (err[j] * 5) / 16;
+      data[i + j + 4 + 4 * width] += (err[j] * 1) / 16;
     }
   }
 
