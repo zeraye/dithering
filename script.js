@@ -71,45 +71,184 @@ const errorDiffusionDithering = (data) => {
   return data;
 };
 
-const orderedDitheringRelative = (data) => {
-  const redIntervals = ditheringIntervals("red");
-  const greenIntervals = ditheringIntervals("green");
-  const blueIntervals = ditheringIntervals("blue");
-  const D3 = [
-    [6, 8, 4],
-    [1, 0, 3],
-    [5, 2, 7],
-  ];
-  const n = 3;
-
-  for (let i = 0; i < data.length; i += 4) {
-    for (let j = 0; j < 3; ++j) {
-      const intervals =
-        j == 0 ? redIntervals : j == 1 ? greenIntervals : blueIntervals;
-      let Ii = findInterval(data[i + j], intervals);
-      const re = Ii % (n * n);
-      const ii = Math.floor(i / inCtx.canvas.width) % n;
-      const jj = Math.floor(i % inCtx.canvas.width) % n;
-      if (re > D3[ii][jj]) Ii = findInterval(data[i + j], intervals, true);
-      data[i + j] = Ii;
+const ditheringMatrixSize = (n) => {
+  const possibleSizes = [];
+  let a = 2;
+  let b = 3;
+  for (let i = 0; i < n; ++i) {
+    possibleSizes.push(a);
+    possibleSizes.push(b);
+    if (a > n) break;
+    a *= 2;
+    b *= 2;
+  }
+  possibleSizes.sort((a, b) => a - b);
+  for (let i = 0; i < possibleSizes.length; ++i) {
+    if (possibleSizes[i] >= n) {
+      return possibleSizes[i];
     }
   }
+  throw new Error("Error in ditheringMatrixSize for argument", n);
+};
+
+const D2 = [
+  [0, 2],
+  [3, 1],
+];
+
+const D3 = [
+  [6, 8, 4],
+  [1, 0, 3],
+  [5, 2, 7],
+];
+
+const buildUMatrix = (n) => {
+  return Array(n)
+    .fill(null)
+    .map(() => Array(n).fill(1));
+};
+
+const factorMatrix = (factor, matrix0) => {
+  const n = matrix0.length;
+
+  let matrix = Array(n)
+    .fill(null)
+    .map(() => Array(n).fill(0));
+
+  for (let i = 0; i < n; ++i) {
+    for (let j = 0; j < n; ++j) {
+      matrix[i][j] = matrix0[i][j] * factor;
+    }
+  }
+
+  return matrix;
+};
+
+const addMatrix = (matrix0, matrix1) => {
+  const n = matrix0.length;
+
+  let matrix = Array(n)
+    .fill(null)
+    .map(() => Array(n).fill(0));
+
+  for (let i = 0; i < n; ++i) {
+    for (let j = 0; j < n; ++j) {
+      matrix[i][j] = matrix0[i][j] + matrix1[i][j];
+    }
+  }
+
+  return matrix;
+};
+
+const join4Matrix = (matrixLU, matrixRU, matrixLD, matrixRD) => {
+  const n = matrixLU.length;
+
+  let matrix = Array(n * 2)
+    .fill(null)
+    .map(() => Array(n * 2).fill(0));
+
+  for (let i = 0; i < n; ++i) {
+    for (let j = 0; j < n; ++j) {
+      matrix[i][j] = matrixLU[i][j];
+    }
+  }
+
+  for (let i = 0; i < n; ++i) {
+    for (let j = 0; j < n; ++j) {
+      matrix[i][j + n] = matrixRU[i][j];
+    }
+  }
+
+  for (let i = 0; i < n; ++i) {
+    for (let j = 0; j < n; ++j) {
+      matrix[i + n][j] = matrixLD[i][j];
+    }
+  }
+
+  for (let i = 0; i < n; ++i) {
+    for (let j = 0; j < n; ++j) {
+      matrix[i + n][j + n] = matrixRD[i][j];
+    }
+  }
+
+  return matrix;
+};
+
+const buildDitheringMatrix = (n) => {
+  if (n == 2) return D2;
+  if (n == 3) return D3;
+
+  const D = buildDitheringMatrix(n / 2);
+  const fD = factorMatrix(4, D);
+  const U = buildUMatrix(n / 2);
+
+  return join4Matrix(
+    fD,
+    addMatrix(fD, factorMatrix(2, U)),
+    addMatrix(fD, factorMatrix(3, U)),
+    addMatrix(fD, U)
+  );
+};
+
+const orderedDitheringRelative = (data) => {
+  const m = data.length;
+  const width = inCtx.canvas.width;
+
+  const cArray = ["red", "green", "blue"];
+  const intervalsArray = cArray.map((c) => ditheringIntervals(c));
+
+  const vArray = ["kr", "kg", "kb"];
+  const kArray = vArray.map((v) => +document.getElementById(v).value);
+  const nArray = kArray.map((k) =>
+    ditheringMatrixSize(Math.floor(Math.sqrt(255 / (k - 1))))
+  );
+  const matrixArray = nArray.map((n) => buildDitheringMatrix(n));
+
+  for (let i = 0; i < m; i += 4) {
+    for (let j = 0; j < 3; ++j) {
+      const n = nArray[j];
+      const n2 = n * n;
+      const Ii = data[i + j];
+      let col = Math.floor(Ii / n2);
+      const re = Ii % n2;
+      const ii = Math.floor((i / 4) % width) % n;
+      const jj = Math.floor(i / (4 * width)) % n;
+      if (re > matrixArray[j][ii][jj]) col++;
+      data[i + j] = intervalsArray[j][col];
+    }
+  }
+
+  return data;
 };
 
 const orderedDitheringRandom = (data) => {
-  const redIntervals = ditheringIntervals("red");
-  const greenIntervals = ditheringIntervals("green");
-  const blueIntervals = ditheringIntervals("blue");
+  const m = data.length;
 
-  for (let i = 0; i < data.length; i += 4) {
+  const cArray = ["red", "green", "blue"];
+  const intervalsArray = cArray.map((c) => ditheringIntervals(c));
+
+  const vArray = ["kr", "kg", "kb"];
+  const kArray = vArray.map((v) => +document.getElementById(v).value);
+  const nArray = kArray.map((k) =>
+    ditheringMatrixSize(Math.floor(Math.sqrt(255 / (k - 1))))
+  );
+  const matrixArray = nArray.map((n) => buildDitheringMatrix(n));
+
+  for (let i = 0; i < m; i += 4) {
     for (let j = 0; j < 3; ++j) {
-      const intervals =
-        j == 0 ? redIntervals : j == 1 ? greenIntervals : blueIntervals;
-      let Ii = findInterval(data[i + j], intervals);
-      if (Math.random() < 0.5) Ii = findInterval(data[i + j], intervals, true);
-      data[i + j] = Ii;
+      const n = nArray[j];
+      const n2 = n * n;
+      const Ii = data[i + j];
+      let col = Math.floor(Ii / n2);
+      const re = Ii % n2;
+      const ii = Math.floor(Math.random() * n);
+      const jj = Math.floor(Math.random() * n);
+      if (re > matrixArray[j][ii][jj]) col++;
+      data[i + j] = intervalsArray[j][col];
     }
   }
+
+  return data;
 };
 
 const toHex = (c) => {
