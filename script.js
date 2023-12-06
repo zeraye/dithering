@@ -126,8 +126,11 @@ const dist = (rgb0, rgb1) => {
 };
 
 const popularityAlgorithm = (data) => {
+  const n = data.length;
+  const k = +document.getElementById("k").value;
+
   let colors = {};
-  for (let i = 0; i < data.length; i += 4) {
+  for (let i = 0; i < n; i += 4) {
     const key = `${data[i]},${data[i + 1]},${data[i + 2]}`;
     if (!colors[key]) {
       colors[key] = 1;
@@ -139,13 +142,13 @@ const popularityAlgorithm = (data) => {
     .sort((a, b) => {
       return colors[b] - colors[a];
     })
-    .slice(0, +document.getElementById("k").value);
+    .slice(0, k);
 
-  for (let i = 0; i < data.length; i += 4) {
+  for (let i = 0; i < n; i += 4) {
     const currrgb = data.slice(i, i + 3);
     let bestrgb = sortedKeys[0].split(",");
     let bestdist = dist(currrgb, bestrgb);
-    for (let j = 1; j < sortedKeys.length; ++j) {
+    for (let j = 1; j < k; ++j) {
       const currdist = dist(currrgb, sortedKeys[j].split(","));
       if (currdist < bestdist) {
         bestdist = currdist;
