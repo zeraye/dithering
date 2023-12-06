@@ -197,7 +197,7 @@ const transformImage = () => {
 
   outCtx.putImageData(imageData, 0, 0);
 
-  console.log("transformation time", Date.now() - start, "ms");
+  document.getElementById("time").textContent = Date.now() - start;
 };
 
 const loadImage = (src) => {
