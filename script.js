@@ -256,13 +256,15 @@ const toHex = (c) => {
   return hex.length == 1 ? "0" + hex : hex;
 };
 
-const dist = (rgb0, rgb1) => {
+const rgbEuclidDist = (rgb0, rgb1) => {
   return (
     (rgb0[0] - rgb1[0]) ** 2 +
     (rgb0[1] - rgb1[1]) ** 2 +
     (rgb0[2] - rgb1[2]) ** 2
   );
 };
+
+let popularityAlgorithmCache = {};
 
 const popularityAlgorithm = (data) => {
   const n = data.length;
@@ -286,14 +288,23 @@ const popularityAlgorithm = (data) => {
   for (let i = 0; i < n; i += 4) {
     const currrgb = data.slice(i, i + 3);
     let bestrgb = sortedKeys[0].split(",");
-    let bestdist = dist(currrgb, bestrgb);
-    for (let j = 1; j < k; ++j) {
-      const currdist = dist(currrgb, sortedKeys[j].split(","));
-      if (currdist < bestdist) {
-        bestdist = currdist;
-        bestrgb = sortedKeys[j].split(",");
+    let bestdist = rgbEuclidDist(currrgb, bestrgb);
+
+    if (currrgb.toString() in popularityAlgorithmCache) {
+      bestrgb = popularityAlgorithmCache[currrgb.toString()];
+    } else {
+      for (let j = 1; j < k; ++j) {
+        const keyrgb = sortedKeys[j].split(",");
+        const currdist = rgbEuclidDist(currrgb, keyrgb);
+
+        if (currdist < bestdist) {
+          bestdist = currdist;
+          bestrgb = keyrgb;
+        }
       }
+      popularityAlgorithmCache[currrgb.toString()] = bestrgb;
     }
+
     data[i] = bestrgb[0];
     data[i + 1] = bestrgb[1];
     data[i + 2] = bestrgb[2];
