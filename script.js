@@ -265,6 +265,7 @@ const rgbEuclidDist = (rgb0, rgb1) => {
 };
 
 let popularityAlgorithmCache = {};
+let popularityAlgorithmCacheK = 0;
 
 const popularityAlgorithm = (data) => {
   const n = data.length;
@@ -285,6 +286,11 @@ const popularityAlgorithm = (data) => {
     })
     .slice(0, k);
 
+  if (k != popularityAlgorithmCacheK) {
+    // Clear cache if k parameter mismatch, because cache will be outdated for every k parameter change.
+    popularityAlgorithmCache = {};
+    popularityAlgorithmCacheK = k;
+  }
   for (let i = 0; i < n; i += 4) {
     const currrgb = data.slice(i, i + 3);
     let bestrgb = sortedKeys[0].split(",");
