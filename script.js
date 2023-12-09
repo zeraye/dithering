@@ -1,6 +1,16 @@
 const inCtx = document.getElementById("original-canvas").getContext("2d");
 const outCtx = document.getElementById("transformed-canvas").getContext("2d");
 
+const imageInput = document.getElementById("file");
+imageInput.addEventListener("change", () => {
+  const file = imageInput.files[0];
+  const reader = new FileReader();
+  reader.addEventListener("load", () => {
+    loadImage(reader.result);
+  });
+  reader.readAsDataURL(file);
+});
+
 const ditheringIntervals = (color) => {
   const k =
     color === "red"

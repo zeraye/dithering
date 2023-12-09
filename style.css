@@ -10,6 +10,10 @@
     width: fit-content;
 }
 
+#settings {
+    width: 500px;
+}
+
 #settings div, input, label {
     padding: 5px;
 }
