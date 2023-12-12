@@ -276,7 +276,7 @@ const rgbEuclidDist = (rgb0, rgb1) => {
 
 const popularityAlgorithm = (data) => {
   const n = data.length;
-  const k = +document.getElementById("k").value;
+  let k = +document.getElementById("k").value;
 
   let colors = {};
   for (let i = 0; i < n; i += 4) {
@@ -287,6 +287,9 @@ const popularityAlgorithm = (data) => {
       colors[key]++;
     }
   }
+
+  k = Math.min(Object.keys(colors).length, k);
+
   const sortedKeys = Object.keys(colors)
     .sort((a, b) => {
       return colors[b] - colors[a];
