@@ -4,7 +4,9 @@
 
 ## how to run
 
-Just open [index.html](index.html) in your preferred browser.
+There are two methods:
+- go to [project website](https://dithering-sigma.vercel.app/),
+- open [index.html](index.html) in your preferred browser.
 
 ## algorithms
 
