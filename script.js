@@ -384,4 +384,105 @@ const loadImage = (src) => {
 // load default image
 loadImage("dog.jpg");
 
+const cmyToRgb = (c, m, y, k) => {
+  const r = 255 * (1 - c) * (1 - k);
+  const g = 255 * (1 - m) * (1 - k);
+  const b = 255 * (1 - y) * (1 - k);
+  return [r, g, b];
+};
+
 document.getElementById("refresh").addEventListener("click", transformImage);
+document.getElementById("generate1").addEventListener("click", () => {
+  const imageData = inCtx.getImageData(
+    0,
+    0,
+    inCtx.canvas.width,
+    inCtx.canvas.height
+  );
+
+  let data = imageData.data;
+
+  const n = data.length;
+  const width = inCtx.canvas.width;
+
+  for (let i = 0; i < n; i += 4) {
+    const x = Math.floor((i / 4) % width);
+    const y = Math.floor(i / (4 * width));
+    if (x < width / 4 && y < width / 2) {
+      data[i] = 0;
+      data[i + 1] = 0;
+      data[i + 2] = 0;
+    } else if (x < (2 * width) / 4 && y < width / 2) {
+      data[i] = 255;
+      data[i + 1] = 0;
+      data[i + 2] = 0;
+    } else if (x < (3 * width) / 4 && y < width / 2) {
+      data[i] = 0;
+      data[i + 1] = 255;
+      data[i + 2] = 0;
+    } else if (x < width && y < width / 2) {
+      data[i] = 0;
+      data[i + 1] = 0;
+      data[i + 2] = 255;
+    } else if (x < width / 4 && y < width) {
+      data[i] = 255;
+      data[i + 1] = 255;
+      data[i + 2] = 255;
+    } else if (x < (2 * width) / 4 && y < width) {
+      const [r, g, b] = cmyToRgb(1, 0, 0, 0);
+      data[i] = r;
+      data[i + 1] = g;
+      data[i + 2] = b;
+    } else if (x < (3 * width) / 4 && y < width) {
+      const [r, g, b] = cmyToRgb(0, 1, 0, 0);
+      data[i] = r;
+      data[i + 1] = g;
+      data[i + 2] = b;
+    } else if (x < width && y < width) {
+      const [r, g, b] = cmyToRgb(0, 0, 1, 0);
+      data[i] = r;
+      data[i + 1] = g;
+      data[i + 2] = b;
+    }
+  }
+
+  inCtx.putImageData(imageData, 0, 0);
+});
+
+const hslToRgb = (h, s, l) => {
+  s /= 100;
+  l /= 100;
+  const k = (n) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n) =>
+    l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  return [255 * f(0), 255 * f(8), 255 * f(4)];
+};
+
+document.getElementById("generate2").addEventListener("click", () => {
+  const imageData = inCtx.getImageData(
+    0,
+    0,
+    inCtx.canvas.width,
+    inCtx.canvas.height
+  );
+
+  let data = imageData.data;
+
+  const n = data.length;
+  const width = inCtx.canvas.width;
+
+  for (let i = 0; i < n; i += 4) {
+    const x = Math.floor((i / 4) % width);
+    const y = Math.floor(i / (4 * width));
+    // [0;width] -> [0;360]
+    const h = x * (360 / width);
+    const s = 100 - y * (100 / width);
+    const [r, g, b] = hslToRgb(h, s, 50);
+    data[i] = r;
+    data[i + 1] = g;
+    data[i + 2] = b;
+  }
+
+  inCtx.putImageData(imageData, 0, 0);
+});
